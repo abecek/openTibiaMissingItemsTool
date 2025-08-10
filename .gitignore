@@ -1,0 +1,36 @@
+# Composer vendor directory
+/vendor/
+
+# Node.js tools (OTBM2JSON cloned repo)
+tools/otbm2json/
+
+/# Logs
+/logs/*
+!/logs/.gitkeep
+
+# Local data files (maps, items.xml, outputs)
+data/input/*
+!data/input/.gitkeep
+data/output/*
+!data/output/.gitkeep
+
+# IDE/editor config files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# PHPUnit cache/results
+.phpunit.result.cache
+
+# Temporary files
+*.tmp
+*.temp
+
+# System-specific
+ehthumbs.db
+Desktop.ini
