@@ -1,23 +1,23 @@
 <?php
 declare(strict_types=1);
 
-namespace EK\MapItemGaps\Application\Command;
+namespace MapMissingItems\Application\Command;
 
-use EK\MapItemGaps\Domain\ItemsXml\XmlItemsLoader;
-use EK\MapItemGaps\Domain\MapScan\ItemOccurrenceCounter;
-use EK\MapItemGaps\Domain\MapScan\MapJsonLoader;
-use EK\MapItemGaps\Domain\MapScan\OTBM2JsonInstaller;
-use EK\MapItemGaps\Domain\MapScan\OTBM2JsonRunner;
-use EK\MapItemGaps\Infrastructure\Logging\LoggerFactory;
-use EK\MapItemGaps\Infrastructure\Output\CsvWriter;
-use EK\MapItemGaps\Infrastructure\Output\XlsxWriter;
-use EK\MapItemGaps\Infrastructure\Output\ResultWriterInterface;
+use MapMissingItems\Domain\ItemsXml\XmlItemsLoader;
+use MapMissingItems\Domain\MapScan\ItemOccurrenceCounter;
+use MapMissingItems\Domain\MapScan\MapJsonLoader;
+use MapMissingItems\Domain\MapScan\OTBM2JsonInstaller;
+use MapMissingItems\Domain\MapScan\OTBM2JsonRunner;
+use MapMissingItems\Infrastructure\Logging\LoggerFactory;
+use MapMissingItems\Infrastructure\Output\CsvWriter;
+use MapMissingItems\Infrastructure\Output\XlsxWriter;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use JsonException;
 
 #[AsCommand(
     name: 'map:gaps:scan',
@@ -27,15 +27,62 @@ final class MapGapsScanCommand extends Command
 {
     protected function configure(): void
     {
-        $this->addOption('items-xml', null, InputOption::VALUE_REQUIRED, 'Path to items.xml')
-             ->addOption('map', null, InputOption::VALUE_OPTIONAL, 'Path to world.otbm', 'data/input/world.otbm')
-             ->addOption('format', null, InputOption::VALUE_OPTIONAL, 'csv|xlsx', 'xlsx')
-             ->addOption('output', null, InputOption::VALUE_OPTIONAL, 'Output file', 'data/output/missing-items.xlsx')
-             ->addOption('tools-dir', null, InputOption::VALUE_OPTIONAL, 'Tools directory (OTBM2JSON)', 'tools/otbm2json')
-             ->addOption('log-file', null, InputOption::VALUE_OPTIONAL, 'Monolog log file', 'logs/app.log')
-             ->addOption('sample', null, InputOption::VALUE_OPTIONAL, 'Sampling: limit the number of map records to N (quick dry run)');
+        $this->addOption(
+            'items-xml',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'Path to items.xml',
+            'data/input/items.xml'
+            )
+             ->addOption(
+                 'map',
+                 null,
+                 InputOption::VALUE_OPTIONAL,
+                 'Path to world.otbm',
+                 'data/input/world.otbm'
+             )
+             ->addOption(
+                 'format',
+                 null,
+                 InputOption::VALUE_OPTIONAL,
+                 'csv|xlsx',
+                 'xlsx'
+             )
+             ->addOption(
+                 'output',
+                 null,
+                 InputOption::VALUE_OPTIONAL,
+                 'Output file',
+                 'data/output/missing-items.xlsx'
+             )
+             ->addOption(
+                 'tools-dir',
+                 null,
+                 InputOption::VALUE_OPTIONAL,
+                 'Tools directory (OTBM2JSON)',
+                 'tools/otbm2json'
+             )
+             ->addOption(
+                 'log-file',
+                 null,
+                 InputOption::VALUE_OPTIONAL,
+                 'Monolog log file',
+                 'logs/app.log'
+             )
+             ->addOption(
+                 'sample',
+                 null,
+                 InputOption::VALUE_OPTIONAL,
+                 'Sampling: limit the number of map records to N (quick dry run)'
+             );
     }
 
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return int
+     * @throws JsonException
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $itemsXml = (string)$input->getOption('items-xml');

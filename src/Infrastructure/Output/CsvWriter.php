@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace EK\MapItemGaps\Infrastructure\Output;
+namespace MapMissingItems\Infrastructure\Output;
 
 use League\Csv\Writer;
 

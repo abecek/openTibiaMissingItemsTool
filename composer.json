@@ -1,6 +1,6 @@
 {
-  "name": "ek/map-item-gaps",
-  "description": "Tool to detect items used on the OTBM map that do not exist in items.xml (TFS 1.5 8.6).",
+  "name": "map-missing-items/tool",
+  "description": "Tool to detect items used on OTBM maps that are missing in items.xml (TFS 1.5 8.6).",
   "type": "project",
   "require": {
     "php": "^8.3",
@@ -8,11 +8,12 @@
     "symfony/process": "^7.1",
     "monolog/monolog": "^3.6",
     "league/csv": "^9.15",
-    "openspout/openspout": "^4.25"
+    "openspout/openspout": "^4.25",
+    "ext-xmlreader": "*"
   },
   "autoload": {
     "psr-4": {
-      "EK\\MapItemGaps\\": "src/"
+      "MapMissingItems\\": "src/"
     }
   },
   "bin": [

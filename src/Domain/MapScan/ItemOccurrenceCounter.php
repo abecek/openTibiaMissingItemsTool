@@ -1,9 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace EK\MapItemGaps\Domain\MapScan;
+namespace MapMissingItems\Domain\MapScan;
 
-use EK\MapItemGaps\Domain\ItemsXml\ItemsIndex;
+use MapMissingItems\Domain\ItemsXml\ItemsIndex;
+use Generator;
 
 final class ItemOccurrenceCounter
 {
@@ -14,7 +15,10 @@ final class ItemOccurrenceCounter
 
     /**
      * @param array<int, array{id:int,x:int,y:int,z:int}> $items
+     * @param ItemsIndex $index
      * @param callable $tick Called every ~10k items
+     *
+     * @return void
      */
     public function count(array $items, ItemsIndex $index, callable $tick): void
     {
@@ -37,13 +41,15 @@ final class ItemOccurrenceCounter
     }
 
     /**
-     * @return \Generator<int, array{
+     * @return Generator<int, array{
      *   id:int, occurrences:int, example_positions:string,
      *   article:string, name:string, weight_attr:string, description_attr:string,
      *   slotType_attr:string, weaponType_attr:string, armor_attr:string, defense_attr:string
      * }>
+     *
+     * @return Generator
      */
-    public function result(): \Generator
+    public function result(): Generator
     {
         arsort($this->counts, SORT_NUMERIC);
         foreach ($this->counts as $id => $occ) {

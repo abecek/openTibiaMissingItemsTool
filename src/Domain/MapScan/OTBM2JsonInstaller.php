@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace EK\MapItemGaps\Domain\MapScan;
+namespace MapMissingItems\Domain\MapScan;
 
 use Symfony\Component\Process\Process;
 
@@ -10,6 +10,10 @@ final class OTBM2JsonInstaller
     /**
      * Ensures OTBM2JSON repo is cloned and wrapper run.js exists.
      * $progress callback gets short status messages.
+     *
+     * @param string $toolsDir
+     * @param callable $progress
+     * @return void
      */
     public function ensureInstalled(string $toolsDir, callable $progress): void
     {
@@ -52,6 +56,9 @@ final class OTBM2JsonInstaller
         }
     }
 
+    /**
+     * @return void
+     */
     private function assertNode(): void
     {
         $proc = Process::fromShellCommandline('node -v');

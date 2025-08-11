@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace EK\MapItemGaps\Domain\MapScan;
+namespace MapMissingItems\Domain\MapScan;
 
 /**
  * Parses OTBM2JSON structure (as seen in examples/OTBM.json) and returns a flat list of items with absolute positions.
@@ -10,6 +10,10 @@ final class MapJsonLoader
 {
     /**
      * @return array<int, array{id:int, x:int, y:int, z:int}>
+     *
+     * @param string $json
+     * @return array
+     * @throws \JsonException
      */
     public function loadItems(string $json): array
     {
@@ -53,7 +57,16 @@ final class MapJsonLoader
         return $out;
     }
 
-    /** Recursively collects item id and nested content */
+    /**
+     * Recursively collects item id and nested content
+     *
+     * @param array $item
+     * @param int $x
+     * @param int $y
+     * @param int $z
+     * @param array $out
+     * @return void
+     */
     private function collectItem(array $item, int $x, int $y, int $z, array &$out): void
     {
         if (isset($item['id'])) {

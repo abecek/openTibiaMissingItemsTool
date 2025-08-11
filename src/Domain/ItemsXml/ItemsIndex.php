@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace EK\MapItemGaps\Domain\ItemsXml;
+namespace MapMissingItems\Domain\ItemsXml;
 
 /**
  * Fast membership check for items.xml (single ids and merged ranges).
@@ -14,11 +14,20 @@ final class ItemsIndex
     /** @var array<array{start:int,end:int}> */
     private array $ranges = [];
 
+    /**
+     * @param int $id
+     * @return void
+     */
     public function addSingle(int $id): void
     {
         $this->single[$id] = true;
     }
 
+    /**
+     * @param int $from
+     * @param int $to
+     * @return void
+     */
     public function addRange(int $from, int $to): void
     {
         if ($to < $from) {
@@ -27,6 +36,9 @@ final class ItemsIndex
         $this->ranges[] = ['start' => $from, 'end' => $to];
     }
 
+    /**
+     * @return void
+     */
     public function finalize(): void
     {
         if (!$this->ranges) {
@@ -48,6 +60,10 @@ final class ItemsIndex
         $this->ranges = $merged;
     }
 
+    /**
+     * @param int $id
+     * @return bool
+     */
     public function exists(int $id): bool
     {
         if (isset($this->single[$id])) {
@@ -56,6 +72,10 @@ final class ItemsIndex
         return $this->inRanges($id);
     }
 
+    /**
+     * @param int $id
+     * @return bool
+     */
     private function inRanges(int $id): bool
     {
         $lo = 0;

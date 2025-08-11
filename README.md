@@ -1,4 +1,4 @@
-# map-item-gaps
+# MapMissingItems
 
 PHP 8.3 + Symfony Console tool that finds items used on an OTBM map but **missing** from `items.xml` (TFS 1.5, 8.6).
 It integrates with the NodeJS library **OTBM2JSON** to read `.otbm` and produces a CSV/XLSX report.
@@ -7,7 +7,21 @@ It integrates with the NodeJS library **OTBM2JSON** to read `.otbm` and produces
 
 ```bash
 composer install
-php bin/console map:gaps:scan       --items-xml data/items.xml       --map data/input/world.otbm       --format xlsx       --output data/output/missing-items.xlsx
+```
+
+```bash
+php bin/console map:gaps:scan \
+  --items-xml data/items.xml \
+  --map data/input/world.otbm \
+  --format xlsx \
+  --output data/output/missing-items.xlsx
+```
+
+E.g.
+```bash
+php bin/console map:gaps:scan \
+  --map="C:\otsDev\TFS-1.5-Downgrades-8.60-upgrade\data\world\test3-860.otbm" \
+  --format xlsx 
 ```
 
 Defaults:

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace EK\MapItemGaps\Infrastructure\Logging;
+namespace MapMissingItems\Infrastructure\Logging;
 
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;

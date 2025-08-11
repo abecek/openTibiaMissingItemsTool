@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace EK\MapItemGaps\Infrastructure\Output;
+namespace MapMissingItems\Infrastructure\Output;
 
 use OpenSpout\Writer\XLSX\Writer;
 use OpenSpout\Writer\Helper\StyleHelper;
