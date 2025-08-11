@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace MapMissingItems\Domain\MapScan;
 
+use JsonException;
+
 /**
  * Parses OTBM2JSON structure (as seen in examples/OTBM.json) and returns a flat list of items with absolute positions.
  */
@@ -13,7 +15,7 @@ final class MapJsonLoader
      *
      * @param string $json
      * @return array
-     * @throws \JsonException
+     * @throws JsonException
      */
     public function loadItems(string $json): array
     {

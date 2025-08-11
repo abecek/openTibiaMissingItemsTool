@@ -59,7 +59,17 @@ The program will automatically:
 Examples:
 ```bash
 php bin/console map:gaps:scan --items-xml data/items.xml --sample=50000 --log-file logs/scan.log
+```
+
+```bash
 php bin/console map:gaps:scan --items-xml data/items.xml --format csv
+```
+
+```bash
+php bin/console map:gaps:scan \
+  --map="C:\otsDev\TFS-1.5-Downgrades-8.60-upgrade\data\world\test3-860.otbm" \
+  --format xlsx \
+  --node-max-old-space 3072
 ```
 
 **Conventions**  

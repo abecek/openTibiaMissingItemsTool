@@ -3,25 +3,32 @@ declare(strict_types=1);
 
 namespace MapMissingItems\Infrastructure\Output;
 
+use Generator;
 use League\Csv\Writer;
+use League\Csv\CannotInsertRecord;
+use League\Csv\Exception;
+use League\Csv\UnavailableStream;
 
 final class CsvWriter implements ResultWriterInterface
 {
-    /** @param \Generator $rows */
+    /**
+     * @param Generator $rows
+     * @param string $path
+     * @return void
+     * @throws CannotInsertRecord
+     * @throws Exception
+     * @throws UnavailableStream
+     */
     public function write(\Generator $rows, string $path): void
     {
         $dir = dirname($path);
-        if (!is_dir($dir)) {
-            @mkdir($dir, 0775, true);
-        }
+        if (!is_dir($dir)) @mkdir($dir, 0775, true);
         $csv = Writer::createFromPath($path, 'w');
-        // Header
         $csv->insertOne([
             'id','occurrences','example_positions',
             'article','name','weight_attr','description_attr',
             'slotType_attr','weaponType_attr','armor_attr','defense_attr'
         ]);
-        // Rows
         foreach ($rows as $row) {
             $csv->insertOne([
                 $row['id'],

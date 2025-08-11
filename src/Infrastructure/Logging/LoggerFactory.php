@@ -9,9 +9,13 @@ use Monolog\Formatter\LineFormatter;
 
 final class LoggerFactory
 {
+    /**
+     * @param string $path
+     * @param string $channel
+     * @return Logger
+     */
     public static function fileLogger(string $path, string $channel = 'app'): Logger
     {
-        // Ensure directory exists
         $dir = dirname($path);
         if (!is_dir($dir)) {
             @mkdir($dir, 0775, true);

@@ -9,7 +9,8 @@
     "monolog/monolog": "^3.6",
     "league/csv": "^9.15",
     "openspout/openspout": "^4.25",
-    "ext-xmlreader": "*"
+    "ext-xmlreader": "*",
+    "phpoffice/phpspreadsheet": "^2.1"
   },
   "autoload": {
     "psr-4": {

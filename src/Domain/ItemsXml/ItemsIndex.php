@@ -5,11 +5,10 @@ namespace MapMissingItems\Domain\ItemsXml;
 
 /**
  * Fast membership check for items.xml (single ids and merged ranges).
- * Comments in English. camelCase naming.
  */
 final class ItemsIndex
 {
-    /** @var array<int, bool> */
+    /** @var array<int,bool> */
     private array $single = [];
     /** @var array<array{start:int,end:int}> */
     private array $ranges = [];
@@ -30,9 +29,7 @@ final class ItemsIndex
      */
     public function addRange(int $from, int $to): void
     {
-        if ($to < $from) {
-            [$from, $to] = [$to, $from];
-        }
+        if ($to < $from) { [$from, $to] = [$to, $from]; }
         $this->ranges[] = ['start' => $from, 'end' => $to];
     }
 
@@ -41,13 +38,11 @@ final class ItemsIndex
      */
     public function finalize(): void
     {
-        if (!$this->ranges) {
-            return;
-        }
-        usort($this->ranges, fn($a, $b) => $a['start'] <=> $b['start']);
+        if (!$this->ranges) return;
+        usort($this->ranges, fn($a,$b) => $a['start'] <=> $b['start']);
         $merged = [];
         $curr = $this->ranges[0];
-        for ($i = 1, $n = count($this->ranges); $i < $n; $i++) {
+        for ($i=1,$n=count($this->ranges); $i<$n; $i++) {
             $r = $this->ranges[$i];
             if ($r['start'] <= $curr['end'] + 1) {
                 $curr['end'] = max($curr['end'], $r['end']);
@@ -66,9 +61,7 @@ final class ItemsIndex
      */
     public function exists(int $id): bool
     {
-        if (isset($this->single[$id])) {
-            return true;
-        }
+        if (isset($this->single[$id])) return true;
         return $this->inRanges($id);
     }
 
@@ -78,18 +71,13 @@ final class ItemsIndex
      */
     private function inRanges(int $id): bool
     {
-        $lo = 0;
-        $hi = count($this->ranges) - 1;
+        $lo=0; $hi=count($this->ranges)-1;
         while ($lo <= $hi) {
-            $mid = intdiv($lo + $hi, 2);
+            $mid = intdiv($lo+$hi, 2);
             $r = $this->ranges[$mid];
-            if ($id < $r['start']) {
-                $hi = $mid - 1;
-            } elseif ($id > $r['end']) {
-                $lo = $mid + 1;
-            } else {
-                return true;
-            }
+            if ($id < $r['start']) $hi = $mid-1;
+            elseif ($id > $r['end']) $lo = $mid+1;
+            else return true;
         }
         return false;
     }
