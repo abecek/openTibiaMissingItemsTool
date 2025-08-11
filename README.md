@@ -72,6 +72,25 @@ php bin/console map:gaps:scan \
   --node-max-old-space 3072
 ```
 
+```bash
+php bin/console map:gaps:scan \
+  --items-xml="data/input/items_original.xml" \
+  --map="C:\otsDev\TFS-1.5-Downgrades-8.60-upgrade\data\world\test3-860.otbm" \
+  --output="data/output/missing-items-original.xlsx" \
+  --format xlsx \
+  --node-max-old-space 3072
+```
+
+```bash
+php bin/console map:gaps:scan \
+  --items-xml="data/input/items.xml" \
+  --map="C:\otsDev\TFS-1.5-Downgrades-8.60-upgrade\data\world\test3-860.otbm" \
+  --output="data/output/missing-items.xlsx" \
+  --images-dir="C:\otsDev\clientResourcesModifications\8.6 spr i dat WLASNY - new test2\rawItemImages\items" \
+  --format xlsx \
+  --node-max-old-space 3072
+```
+
 **Conventions**  
 - Comments in code are in English.
 - camelCase naming in code.

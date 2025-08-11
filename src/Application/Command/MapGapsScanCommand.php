@@ -62,6 +62,12 @@ final class MapGapsScanCommand extends Command
                  'Output file',
                  'data/output/missing-items.xlsx'
              )
+            ->addOption(
+                'images-dir',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Directory path to catalog with item images. To generate them, check: https://item-images.ots.me/generator/'
+            )
              ->addOption(
                  'tools-dir',
                  null,
@@ -132,6 +138,7 @@ final class MapGapsScanCommand extends Command
         } elseif ($format === 'xlsx' && !str_ends_with($outputPath, '.xlsx')) {
             $outputPath = 'data/output/missing-items.xlsx';
         }
+        $imagesPath = $input->getOption('images-dir');
         $toolsDir = (string)$input->getOption('tools-dir');
         $logFile = (string)$input->getOption('log-file');
 
@@ -157,6 +164,7 @@ final class MapGapsScanCommand extends Command
             'map' => $mapPath,
             'format' => $format,
             'output' => $outputPath,
+            'imagesDir' => $imagesPath ?? '<null>',
             'toolsDir' => $toolsDir,
             'sample' => $sampleN,
             'nodeMaxOldSpaceMB' => $nodeMax,
@@ -235,7 +243,13 @@ final class MapGapsScanCommand extends Command
         // [6/6] Export
         $output->writeln('<info>[6/6] Exporting results</info>');
         $writer = $format === 'csv' ? new CsvWriter() : new XlsxWriter();
-        $writer->write($counter->result(), $outputPath);
+        if ($format === 'csv') {
+            $writer = new CsvWriter();
+            $writer->write($counter->result(), $outputPath);
+        } else {
+            $writer = new XlsxWriter();
+            $writer->write($counter->result(), $outputPath, $imagesPath);
+        }
         $output->writeln(sprintf('<info>Saved: %s</info>', $outputPath));
         $output->writeln('<info>Enhancing XLSX (filters, auto-size, freeze top row)...</info>');
         try {
