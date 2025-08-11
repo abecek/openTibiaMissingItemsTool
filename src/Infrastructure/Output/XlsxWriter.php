@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace MapMissingItems\Infrastructure\Output;
 
+use MapItemGaps\Dict\IdExceptionListInterface;
 use OpenSpout\Writer\XLSX\Writer;
 use OpenSpout\Writer\XLSX\Options;
 use OpenSpout\Common\Entity\Row;
@@ -19,7 +20,7 @@ final class XlsxWriter implements ResultWriterInterface
      * @throws IOException
      * @throws WriterNotOpenedException
      */
-    public function write(\Generator $rows, string $path): void
+    public function write(Generator $rows, string $path): void
     {
         $dir = dirname($path);
         if (!is_dir($dir)) {
@@ -39,6 +40,7 @@ final class XlsxWriter implements ResultWriterInterface
 
         // Data
         foreach ($rows as $row) {
+            if (in_array((int) $row['id'], IdExceptionListInterface::IDS_TO_SKIP)) continue;
             $writer->addRow(Row::fromValues([
                 $row['id'],
                 $row['occurrences'],

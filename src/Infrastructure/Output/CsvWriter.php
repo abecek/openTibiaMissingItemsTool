@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace MapMissingItems\Infrastructure\Output;
 
+use MapItemGaps\Dict\IdExceptionListInterface;
 use Generator;
 use League\Csv\Writer;
 use League\Csv\CannotInsertRecord;
@@ -19,7 +20,7 @@ final class CsvWriter implements ResultWriterInterface
      * @throws Exception
      * @throws UnavailableStream
      */
-    public function write(\Generator $rows, string $path): void
+    public function write(Generator $rows, string $path): void
     {
         $dir = dirname($path);
         if (!is_dir($dir)) @mkdir($dir, 0775, true);
@@ -30,6 +31,7 @@ final class CsvWriter implements ResultWriterInterface
             'slotType_attr','weaponType_attr','armor_attr','defense_attr'
         ]);
         foreach ($rows as $row) {
+            if (in_array((int) $row['id'], IdExceptionListInterface::IDS_TO_SKIP)) continue;
             $csv->insertOne([
                 $row['id'],
                 $row['occurrences'],
