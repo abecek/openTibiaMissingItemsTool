@@ -131,25 +131,35 @@ Appends a clearly marked block at the end of items.xml without changing the orde
 Creates a timestamped backup by default (e.g. items.xml.bak.20250814_203355).
 
 ## Options
-- items-xml – path to items.xml (default: data/input/items.xml)
-- report – path to report (.xlsx or .csv). If omitted, the tool picks the first existing:
+- `--items-xml` – path to items.xml (default: data/input/items.xml)
+- `--report `– path to report (.xlsx or .csv). If omitted, the tool picks the first existing:
 `data/output/missing-items.xlsx`, or `data/output/missing-items.csv`
-- no-backup – disable backup file creation
-- sheet – 0-based sheet index for XLSX (default: 0)
-- row-chunk – progress granularity while scanning the report (default: 5000)
+- `--csv-delimiter` – CSV delimiter when reading .csv reports (default: ,)
+- `--no-backup` – disable backup file creation
+- `--sheet` – 0-based sheet index for XLSX (default: 0)
+- `--row-chunk` – progress granularity while scanning the report (default: 5000)
+- `--dry-run` – preview the items that would be appended, without writing to items.xml
 
-### XLSX
+### Basic (XLSX)
 ```bash
 php bin/console items:xml:augment \
 --items-xml="data/input/items.xml" \
 --report="data/output/missing-items.xlsx"
 ```
 
-### CSV
+### Dry run (no changes written)
+```bash
+php bin/console items:xml:augment \
+--items-xml="data/input/items.xml" \
+--report="data/output/missing-items.xlsx" \
+--dry-run
+```
+
+### CSV with semicolon delimiter
 ```bash
 php bin/console items:xml:augment \
 --items-xml="data/input/items.xml" \
 --report="data/output/missing-items.csv" \
---no-backup
+--csv-delimiter=";"
 ```
 
