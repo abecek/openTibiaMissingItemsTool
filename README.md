@@ -81,6 +81,8 @@ php bin/console map:gaps:scan \
   --node-max-old-space 3072
 ```
 
+By default sort results by occurrences column
+
 ```bash
 php bin/console map:gaps:scan \
   --items-xml="data/input/items.xml" \
@@ -91,6 +93,63 @@ php bin/console map:gaps:scan \
   --node-max-old-space 3072
 ```
 
-**Conventions**  
-- Comments in code are in English.
-- camelCase naming in code.
+Sorting by id - ascending
+
+```bash
+php bin/console map:gaps:scan \
+  --items-xml="data/input/items.xml" \
+  --map="C:\otsDev\TFS-1.5-Downgrades-8.60-upgrade\data\world\test3-860.otbm" \
+  --output="data/output/missing-items.xlsx" \
+  --images-dir="C:\otsDev\clientResourcesModifications\8.6 spr i dat WLASNY - new test2\rawItemImages\items" \
+  --format xlsx \
+  --sort id-asc \
+  --node-max-old-space 3072
+```
+
+# Augment items.xml from a filled report
+
+After you run `map:gaps:scan` and manually fill **article** and **name** columns in the generated report (CSV/XLSX),
+you can append those items back into `items.xml`:
+
+```bash
+php bin/console items:xml:augment \
+  --items-xml data/input/items.xml \
+  --report data/output/missing-items.xlsx
+```
+
+## What it does
+Reads the report (XLSX/CSV) and takes only rows where: 
+id is a positive integer name is non-empty (article optional)
+Skips any id already present in items.xml, including those covered by existing ranges fromid–toid.
+Sorts remaining IDs in ascending order and merges consecutive IDs with identical (article, name) into a single range:
+
+```xml
+<item fromid="1001" toid="1004" article="a" name="marble flooring"/>
+```
+
+Appends a clearly marked block at the end of items.xml without changing the order of existing entries.
+Creates a timestamped backup by default (e.g. items.xml.bak.20250814_203355).
+
+## Options
+- items-xml – path to items.xml (default: data/input/items.xml)
+- report – path to report (.xlsx or .csv). If omitted, the tool picks the first existing:
+`data/output/missing-items.xlsx`, or `data/output/missing-items.csv`
+- no-backup – disable backup file creation
+- sheet – 0-based sheet index for XLSX (default: 0)
+- row-chunk – progress granularity while scanning the report (default: 5000)
+
+### XLSX
+```bash
+php bin/console items:xml:augment \
+--items-xml="data/input/items.xml" \
+--report="data/output/missing-items.xlsx"
+```
+
+### CSV
+```bash
+php bin/console items:xml:augment \
+--items-xml="data/input/items.xml" \
+--report="data/output/missing-items.csv" \
+--no-backup
+```
+

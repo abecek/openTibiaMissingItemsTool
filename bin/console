@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 use Symfony\Component\Console\Application;
 use MapMissingItems\Application\Command\MapGapsScanCommand;
+use MapMissingItems\Application\Command\ItemsXmlAugmentCommand;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 $app = new Application('map-item-gaps', '0.1.0');
 $app->add(new MapGapsScanCommand());
-$app->setDefaultCommand('map:gaps:scan');
+$app->add(new ItemsXmlAugmentCommand());
+
 $app->run();

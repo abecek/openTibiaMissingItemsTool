@@ -101,6 +101,13 @@ final class MapGapsScanCommand extends Command
                 InputOption::VALUE_OPTIONAL,
                 'Temp directory for NDJSON output',
                 'data/output/tmp'
+            )
+            ->addOption(
+                'sort',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Sort order: occurrences | id-asc',
+                'occurrences'
             );
     }
 
@@ -157,6 +164,13 @@ final class MapGapsScanCommand extends Command
         $tmpDir = (string)$input->getOption('tmp-dir');
         if ($tmpDir === '') { $tmpDir = 'data/output/tmp'; }
         if (!is_dir($tmpDir)) { @mkdir($tmpDir, 0775, true); }
+
+        // NEW: sort option
+        $sort = strtolower((string)$input->getOption('sort'));
+        if (!in_array($sort, ['occurrences','id-asc'], true)) {
+            $output->writeln('<error>Invalid --sort (allowed: occurrences, id-asc)</error>');
+            return Command::FAILURE;
+        }
 
         $logger = LoggerFactory::fileLogger($logFile);
         $logger->info('--- map:gaps:scan START ---', [
@@ -242,21 +256,46 @@ final class MapGapsScanCommand extends Command
 
         // [6/6] Export
         $output->writeln('<info>[6/6] Exporting results</info>');
-        $writer = $format === 'csv' ? new CsvWriter() : new XlsxWriter();
         if ($format === 'csv') {
             $writer = new CsvWriter();
-            $writer->write($counter->result(), $outputPath);
+            $writer->write($counter->result($sort), $outputPath);
         } else {
             $writer = new XlsxWriter();
-            $writer->write($counter->result(), $outputPath, $imagesPath);
+            $writer->write($counter->result($sort), $outputPath, $imagesPath);
         }
         $output->writeln(sprintf('<info>Saved: %s</info>', $outputPath));
         $output->writeln('<info>Enhancing XLSX (filters, auto-size, freeze top row)...</info>');
-        try {
-            XlsxEnhancer::enhance($outputPath, 100000);
-            $output->writeln('<info>Enhancement done.</info>');
-        } catch (Throwable $e) {
-            $output->writeln('<comment>Enhancement skipped: ' . $e->getMessage() . '</comment>');
+        if ($format === 'xlsx') {
+            $maxRows = 100000;
+
+            $output->writeln('<info>Enhancing XLSX…</info>');
+            $enhanceBar = new ProgressBar($output, 1);
+            $enhanceBar->start();
+
+            try {
+                XlsxEnhancer::enhance(
+                    $outputPath,
+                    $maxRows,
+                    function (string $msg, int $advanceBy = 1, ?int $setMax = null) use ($output, $enhanceBar) {
+                        if ($setMax !== null) {
+                            $enhanceBar->setMaxSteps($setMax);
+                            $enhanceBar->display();
+                            return;
+                        }
+                        if ($advanceBy > 0) {
+                            $enhanceBar->advance($advanceBy);
+                        }
+                        $output->writeln('  - ' . $msg);
+                    },
+                    100 // rowChunk: after how many rows should the bar be increased (you can change it to e.g. 100)
+                );
+                $enhanceBar->finish();
+                $output->writeln('');
+                $output->writeln('<info>Enhancement done.</info>');
+            } catch (Throwable $e) {
+                $enhanceBar->clear();
+                $output->writeln('<comment>Enhancement skipped: ' . $e->getMessage() . '</comment>');
+            }
         }
         $logger->info('Results saved', ['output' => $outputPath, 'format' => $format]);
 

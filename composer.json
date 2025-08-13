@@ -10,7 +10,8 @@
     "league/csv": "^9.15",
     "openspout/openspout": "^4.25",
     "ext-xmlreader": "*",
-    "phpoffice/phpspreadsheet": "^2.1"
+    "phpoffice/phpspreadsheet": "^2.1",
+    "ext-dom": "*"
   },
   "autoload": {
     "psr-4": {
