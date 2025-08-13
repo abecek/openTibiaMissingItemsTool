@@ -134,6 +134,7 @@ Creates a timestamped backup by default (e.g. items.xml.bak.20250814_203355).
 - `--items-xml` – path to items.xml (default: data/input/items.xml)
 - `--report `– path to report (.xlsx or .csv). If omitted, the tool picks the first existing:
 `data/output/missing-items.xlsx`, or `data/output/missing-items.csv`
+- `--output` – path to destination `items.xml`. If provided, the tool copies `--items-xml` to this path and works on the **copy** instead of modifying the source file.
 - `--csv-delimiter` – CSV delimiter when reading .csv reports (default: ,)
 - `--no-backup` – disable backup file creation
 - `--sheet` – 0-based sheet index for XLSX (default: 0)
@@ -145,6 +146,14 @@ Creates a timestamped backup by default (e.g. items.xml.bak.20250814_203355).
 php bin/console items:xml:augment \
 --items-xml="data/input/items.xml" \
 --report="data/output/missing-items.xlsx"
+```
+
+### Work on a copy instead of the source items.xml (recommended)
+```bash
+php bin/console items:xml:augment \
+--items-xml data/input/items.xml \
+--output data/output/items_appended.xml \
+--report data/output/missing-items.xlsx
 ```
 
 ### Dry run (no changes written)
