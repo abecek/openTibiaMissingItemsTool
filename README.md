@@ -153,7 +153,8 @@ php bin/console items:xml:augment \
 php bin/console items:xml:augment \
 --items-xml data/input/items.xml \
 --output data/output/items_appended.xml \
---report data/output/missing-items.xlsx
+--report data/output/missing-items.xlsx \
+--no-backup
 ```
 
 ### Dry run (no changes written)
