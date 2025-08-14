@@ -172,3 +172,72 @@ php bin/console items:xml:augment \
 --csv-delimiter=";"
 ```
 
+# Requirements (MapMissingItems Tool)
+
+## Runtime
+- **PHP 8.3** (CLI)
+   - Recommended extensions: `ext-json`, `ext-dom`, `ext-libxml`, `ext-mbstring`, `ext-iconv`, `ext-zip`, `ext-gd`.
+- **Composer 2.x**
+- **Node.js ≥ 18 LTS** — required to run **OTBM2JSON** for OTBM → NDJSON/JSON conversion.
+- **Git ≥ 2.x** — used to clone the OTBM2JSON repository on first run.
+- **Internet access (first run)** — to download OTBM2JSON.
+
+## Supported operating systems
+- Windows 10/11, macOS (Intel/Apple Silicon), Linux (x64/arm64).
+- On Windows, use PowerShell / CMD / Git Bash and ensure both `node` and `git` are available on `PATH`.
+
+## PHP extensions
+- `ext-zip` — required by XLSX handling (OpenSpout/PhpSpreadsheet).
+- `ext-gd` — recommended for embedding PNG icons into the XLSX output.
+- `ext-mbstring`, `ext-iconv` — safe text encoding/decoding for reports.
+- `ext-dom`, `ext-libxml` — parsing and writing `items.xml`.
+
+## Composer dependencies (installed automatically)
+- `symfony/console`
+- `symfony/process`
+- `monolog/monolog`
+- `openspout/openspout` (streaming CSV/XLSX writer)
+- `phpoffice/phpspreadsheet` (XLSX post-processing & image embedding)
+
+> If any PHP extension is missing, `composer install` will print a clear message.
+
+## Disk, memory & temp files
+- **Disk space** in:
+   - `data/output/` — reports (CSV/XLSX) and temporary NDJSON files,
+   - `tools/otbm2json/` — cloned OTBM2JSON project,
+   - `logs/` — application logs.
+- **Node.js memory**: large maps may need a higher V8 heap. Use:
+  ```bash
+  --node-max-old-space 3072   # e.g. 3 GB
+- PHP memory: the scanner uses streaming/NDJSON and typically runs fine with 256–512 MB. If needed:
+  ```bash
+  php -d memory_limit=1024M bin/console ...
+  ```
+## Quick install hints
+- Windows:
+  Manually install node.js and php 8.3 (remember to uncomment necessary extensions in php.ini file)
+- Ubuntu/Debian:
+```bash
+sudo apt-get update
+sudo apt-get install -y git php-cli php-xml php-zip php-gd
+# Node LTS via nvm:
+curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+nvm install --lts
+```
+
+## Permissions & paths
+
+- The tool writes to data/output/ and logs/ — ensure write permissions.
+- On first run it clones OTBM2JSON into tools/otbm2json/ (requires git and internet).
+- Paths can be overridden via CLI options (e.g. --tools-dir, --output, --tmp-dir).
+
+## Opening the results
+- XLSX: Microsoft Excel or LibreOffice Calc.
+- CSV: any spreadsheet/editor.
+
+## Sanity checklist
+- php -v → 8.3.x
+- composer -V outputs a version
+- node -v → ≥ 18
+- git --version works
+- write permissions to data/output/, tools/, logs/
