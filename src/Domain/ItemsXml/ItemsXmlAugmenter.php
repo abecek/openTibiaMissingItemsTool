@@ -5,11 +5,8 @@ namespace MapMissingItems\Domain\ItemsXml;
 
 use DOMDocument;
 use DOMElement;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use MapMissingItems\Domain\Report\ReportReader;
 use RuntimeException;
-use Generator;
-use SplFileObject;
 use DOMException;
 
 /**
@@ -97,7 +94,8 @@ final class ItemsXmlAugmenter
         if ($progress) { $progress('[2/4] Reading report: ' . $reportPath); }
         $countTotal = 0;
         $triplets = [];
-        foreach ($this->readReport($reportPath, $sheetIndex, $csvDelimiter) as $row) {
+        $reportReader = new ReportReader();
+        foreach ($reportReader->read($reportPath, $sheetIndex, $csvDelimiter) as $row) {
             $countTotal++;
             if (($countTotal % $rowChunk) === 0 && $progress) {
                 $progress("  scanned {$countTotal} rows…");
@@ -205,10 +203,10 @@ final class ItemsXmlAugmenter
             // merge overlaps / adjacents
             $merged = [];
             foreach ($coveredRanges as [$f, $t]) {
-                if (!$merged || $f > $merged[\count($merged)-1][1] + 1) {
+                if (!$merged || $f > $merged[count($merged)-1][1] + 1) {
                     $merged[] = [$f, $t];
                 } else {
-                    $merged[\count($merged)-1][1] = max($merged[\count($merged)-1][1], $t);
+                    $merged[count($merged)-1][1] = max($merged[count($merged)-1][1], $t);
                 }
             }
             $coveredRanges = $merged;
@@ -229,7 +227,7 @@ final class ItemsXmlAugmenter
             return true;
         }
         // binary search over ranges
-        $lo = 0; $hi = \count($coveredRanges) - 1;
+        $lo = 0; $hi = count($coveredRanges) - 1;
         while ($lo <= $hi) {
             $mid = (int)(($lo + $hi) / 2);
             [$from, $to] = $coveredRanges[$mid];
@@ -254,7 +252,7 @@ final class ItemsXmlAugmenter
     private function groupTriplets(array $triplets): array
     {
         $groups = [];
-        $n = \count($triplets);
+        $n = count($triplets);
         $i = 0;
         while ($i < $n) {
             $start = $i;
@@ -299,7 +297,7 @@ final class ItemsXmlAugmenter
      * @param DOMElement $root
      * @param array $groups
      * @return void
-     * @throws \DOMException
+     * @throws DOMException
      */
     private function appendBlock(DOMDocument $dom, DOMElement $root, array $groups): void
     {
@@ -337,75 +335,5 @@ final class ItemsXmlAugmenter
         $root->appendChild($dom->createTextNode("\t"));
         $root->appendChild($dom->createComment(' END auto-appended by items:xml:augment '));
         $root->appendChild($dom->createTextNode("\n"));
-    }
-
-    /**
-     * Iterate report rows as assoc arrays keyed by lowercased headers.
-     * Supports: XLSX (PhpSpreadsheet) and CSV (SplFileObject).
-     *
-     * @param string $path
-     * @param int $sheetIndex
-     * @param string $csvDelimiter
-     * @return Generator<array<string, scalar|null>>
-     */
-    private function readReport(string $path, int $sheetIndex, string $csvDelimiter): Generator
-    {
-        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-
-        if ($ext === 'xlsx') {
-            $reader = IOFactory::createReader('Xlsx');
-            $reader->setReadDataOnly(true);
-            $spreadsheet = $reader->load($path);
-            $sheet = $spreadsheet->getSheet($sheetIndex);
-
-            $highestRow = $sheet->getHighestDataRow();
-            $highestCol = $sheet->getHighestDataColumn();
-            $highestColIndex = Coordinate::columnIndexFromString($highestCol);
-
-            // headers in row 1
-            $headers = [];
-            for ($c = 1; $c <= $highestColIndex; $c++) {
-                $col = Coordinate::stringFromColumnIndex($c);
-                $headers[$c] = strtolower(trim((string)$sheet->getCell($col . '1')->getValue()));
-            }
-
-            for ($r = 2; $r <= $highestRow; $r++) {
-                $assoc = [];
-                for ($c = 1; $c <= $highestColIndex; $c++) {
-                    $col = Coordinate::stringFromColumnIndex($c);
-                    $key = $headers[$c] ?: ('col' . $c);
-                    $val = $sheet->getCell($col . (string)$r)->getValue();
-                    $assoc[$key] = is_scalar($val) ? $val : (string)$val;
-                }
-                yield $assoc;
-            }
-
-            $spreadsheet->disconnectWorksheets();
-            unset($spreadsheet);
-            return;
-        }
-
-        if ($ext === 'csv') {
-            $file = new SplFileObject($path, 'r');
-            $file->setFlags(SplFileObject::READ_CSV | SplFileObject::SKIP_EMPTY | SplFileObject::DROP_NEW_LINE);
-            $file->setCsvControl($csvDelimiter);
-            $headers = null;
-            foreach ($file as $row) {
-                if ($row === [null] || $row === false) { continue; }
-                if ($headers === null) {
-                    $headers = array_map(fn($h) => strtolower(trim((string)$h)), $row);
-                    continue;
-                }
-                $assoc = [];
-                foreach ($row as $i => $v) {
-                    $key = $headers[$i] ?? ('col' . $i);
-                    $assoc[$key] = is_scalar($v) ? $v : (string)$v;
-                }
-                yield $assoc;
-            }
-            return;
-        }
-
-        throw new RuntimeException('Unsupported report extension: ' . $ext);
     }
 }
